@@ -1,0 +1,39 @@
+name: Publish to crates.io
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing v* tag to publish after Release Check succeeds.
+        required: true
+        type: string
+      confirmation:
+        description: Type PUBLISH to upload the selected tag version.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: startsWith(inputs.tag, 'v') && inputs.confirmation == 'PUBLISH'
+    environment: crates-io
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - run: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev pkg-config
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+      - name: Verify tag matches package version
+        run: |
+          tag_version="${{ inputs.tag }}"
+          tag_version="${tag_version#v}"
+          package_version="$(sed -nE 's/^version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' Cargo.toml | head -n 1)"
+          test "$tag_version" = "$package_version"
+      - env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish

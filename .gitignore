@@ -1,0 +1,11 @@
+/target/
+/Cargo.lock
+.DS_Store
+
+# Biometric and test capture artifacts (never commit)
+*.pgm
+*.bmp
+*.raw
+*.bin
+*.png
+
