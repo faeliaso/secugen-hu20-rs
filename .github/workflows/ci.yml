@@ -14,7 +14,7 @@ jobs:
             install: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev pkg-config
           - runner: ubuntu-24.04-arm
             install: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev pkg-config
-          - runner: macos-14
+          - runner: macos-latest
             install: brew install libusb pkg-config
     runs-on: ${{ matrix.runner }}
     steps:
