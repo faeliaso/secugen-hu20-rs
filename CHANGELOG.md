@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## 0.1.2 - 2026-11-13
+
+### Fixed
+
+- `SecuGenDevice::capture_frame_raw()` and `SecuGenDevice::capture_frame()` now read the full native `1100×800` CMOS `SensorFrame` and resample the active optical platen window to `300×400`, preventing 200-pixel row-stride shear.
+
 ## 0.1.1 - 2026-11-13
 
 ### Added
