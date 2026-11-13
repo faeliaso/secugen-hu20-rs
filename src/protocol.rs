@@ -80,8 +80,10 @@ pub(crate) const BULK_IN_ENDPOINT: u8 = 0x82;
 /// vendor request, including the sensor's I²C bridge operations.
 pub(crate) const CONTROL_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(2_000);
 /// Timeout for each bulk image read.
+#[allow(dead_code)]
 pub(crate) const FRAME_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(2);
 /// Maximum read request used while assembling a frame.
+#[allow(dead_code)]
 pub(crate) const BULK_READ_SIZE: usize = 4_096;
 /// Vendor request used to read or write an I²C sensor register.
 pub(crate) const I2C_REQUEST: u8 = 0x22;
