@@ -1,12 +1,12 @@
 use crate::error::{ScannerError, UsbOperation};
 use crate::protocol::{
-    is_hu20, BULK_IN_ENDPOINT, BULK_READ_SIZE, CONTROL_TIMEOUT, DEFAULT_EXPOSURE, DEFAULT_GAIN,
-    DUMP_FRAME_REQUEST, FRAME_TIMEOUT, I2C_REQUEST, INTERFACE_NUMBER, READ_SERIAL_REQUEST,
-    RESET_DEVICE_REQUEST, SECUGEN_VID, SENSOR_I2C_ADDRESS, SENSOR_REGISTERS,
-    SENSOR_REG_EXPOSURE_HIGH, SENSOR_REG_EXPOSURE_LOW, SENSOR_REG_GAIN, SERIAL_NUMBER_LENGTH,
-    SET_LED_REQUEST, START_IMAGE_REQUEST, STOP_IMAGE_REQUEST,
+    is_hu20, BULK_IN_ENDPOINT, CONTROL_TIMEOUT, DEFAULT_EXPOSURE, DEFAULT_GAIN, DUMP_FRAME_REQUEST,
+    I2C_REQUEST, INTERFACE_NUMBER, READ_SERIAL_REQUEST, RESET_DEVICE_REQUEST, SECUGEN_VID,
+    SENSOR_I2C_ADDRESS, SENSOR_REGISTERS, SENSOR_REG_EXPOSURE_HIGH, SENSOR_REG_EXPOSURE_LOW,
+    SENSOR_REG_GAIN, SERIAL_NUMBER_LENGTH, SET_LED_REQUEST, START_IMAGE_REQUEST,
+    STOP_IMAGE_REQUEST,
 };
-use crate::{DeviceId, RawFrame, FRAME_BYTES};
+use crate::{DeviceId, RawFrame};
 use rusb::{Device, DeviceHandle, GlobalContext, TransferType};
 
 /// Stable metadata for an opened HU20.
@@ -165,16 +165,13 @@ impl SecuGenDevice {
     }
 
     /// Captures a frame using the current LED state without turning it on or off.
+    ///
+    /// Reads the full native `1100x800` CMOS [`SensorFrame`](crate::SensorFrame) and
+    /// resamples the active optical platen window into a `300x400` [`RawFrame`] to
+    /// prevent row-stride shear.
     pub fn capture_frame_raw(&mut self) -> Result<RawFrame, ScannerError> {
-        self.initialize_sensor()?;
-        self.start_image_stream()?;
-        let result = self.read_frame_bytes().and_then(RawFrame::new);
-        let stop_result = self.stop_image_stream();
-        match (result, stop_result) {
-            (Ok(frame), Ok(())) => Ok(frame),
-            (Ok(_), Err(error)) => Err(error),
-            (Err(error), _) => Err(error),
-        }
+        let sensor_frame = self.capture_sensor_frame_quick()?;
+        sensor_frame.to_biometric_frame()
     }
 
     /// Reads all available bytes from the Bulk IN endpoint until completion.
@@ -593,46 +590,6 @@ impl SecuGenDevice {
                 operation,
                 message: error.to_string(),
             })
-    }
-
-    fn read_frame_bytes(&mut self) -> Result<Vec<u8>, ScannerError> {
-        let mut frame = Vec::with_capacity(FRAME_BYTES);
-        let mut chunk = [0_u8; BULK_READ_SIZE];
-        while frame.len() < FRAME_BYTES {
-            match self
-                .handle
-                .read_bulk(BULK_IN_ENDPOINT, &mut chunk, FRAME_TIMEOUT)
-            {
-                Ok(0) => break,
-                Ok(read) => {
-                    let needed = FRAME_BYTES - frame.len();
-                    let to_take = read.min(needed);
-                    frame.extend_from_slice(&chunk[..to_take]);
-                }
-                Err(rusb::Error::Timeout) if frame.is_empty() => return Err(ScannerError::Timeout),
-                Err(rusb::Error::Timeout) => {
-                    return Err(ScannerError::FrameReadTimeout {
-                        received: frame.len(),
-                        expected: FRAME_BYTES,
-                    });
-                }
-                Err(error) => {
-                    return Err(ScannerError::Usb {
-                        operation: UsbOperation::ReadFrame,
-                        message: error.to_string(),
-                    });
-                }
-            }
-        }
-        if frame.len() < FRAME_BYTES {
-            return Err(ScannerError::FrameReadTimeout {
-                received: frame.len(),
-                expected: FRAME_BYTES,
-            });
-        }
-        // Invert pixel polarity (bitwise NOT) so ridges are dark and valleys are light
-        frame.iter_mut().for_each(|pixel| *pixel = !*pixel);
-        Ok(frame)
     }
 }
 
