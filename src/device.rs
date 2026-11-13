@@ -250,7 +250,7 @@ impl SecuGenDevice {
         crate::SensorFrame::new(frame)
     }
 
-    /// Dynamically tunes sensor exposure and gain (Smart Capture) in a closed-loop.
+    /// Dynamically tunes sensor exposure and gain in a closed loop.
     ///
     /// Evaluates contact luminance and ridge-to-valley contrast:
     /// - Heavy press / wet finger: decreases exposure/gain to prevent ridge collapse.
@@ -312,7 +312,7 @@ impl SecuGenDevice {
                 best_gain = self.gain;
             }
 
-            // Smart Capture Closed-Loop Control:
+            // Closed-loop auto-exposure control:
             if deep_black_pct > 8 || mean_touch < 75 {
                 // Saturated / heavy pressure -> reduce exposure and/or gain
                 let new_exp = self.exposure.saturating_sub(crate::EXPOSURE_STEP * 2);
@@ -348,7 +348,7 @@ impl SecuGenDevice {
         Ok((best_exposure, best_gain, best_delta))
     }
 
-    /// Captures a professionally tuned biometric frame using Smart Capture and clean framing.
+    /// Captures a biometric frame using closed-loop auto-exposure and clean framing.
     pub fn capture_smart_frame(&mut self) -> Result<RawFrame, ScannerError> {
         let _ = self.auto_tune_exposure()?;
         let sensor_frame = self.capture_sensor_frame_quick()?;

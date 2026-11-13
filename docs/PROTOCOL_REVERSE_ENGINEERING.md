@@ -98,7 +98,7 @@ The CMOS sensor outputs inverted grayscale values. Every pixel is inverted with 
 
 ---
 
-## 6. Smart Capture™ (Closed-Loop Auto-Exposure & Gain)
+## 6. Closed-Loop Auto-Exposure and Gain
 
 Closed-loop integration-time tuning adapts to FTIR contact dynamics:
 - **Light touch / dry finger** (`mean_touch > 130` or `delta < 25`): increases exposure (up to `EXPOSURE_MAX = 8000`) and gain (up to `GAIN_MAX = 0x28`).
@@ -119,4 +119,4 @@ Validated on a physical `1162:2200` HU20 scanner:
 | CMOS I²C Write + Verify | `0x40/0x22` followed by `0xc0/0x22` | **Pass** | Immediate readback matched written value. |
 | Full Sensor Initialization | 59 registers + 8 window registers (`0x41`..`0x48`) | **Pass** | All registers written and verified without timeout. |
 | Image Capture Stream | `0x40/0x01` or `0x03` → Bulk IN `0x82` → `0x40/0x02` | **Pass** | Acquired `120,000` bytes (`300×400`) and `880,000` bytes (`1100×800`). |
-| Polarity + Smart Capture | `!pixel` + `auto_tune_exposure()` + `masked_platen()` | **Pass** | Clean biometric `300×400` and `600×800` frames with distinct ridges/valleys. |
+| Polarity + Auto-Exposure | `!pixel` + `auto_tune_exposure()` + `masked_platen()` | **Pass** | Clean biometric `300×400` and `600×800` frames with distinct ridges/valleys. |

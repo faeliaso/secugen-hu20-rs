@@ -13,7 +13,7 @@ Built entirely on `rusb` with clean-room protocol documentation and hardware val
 - **Hardware Serial Number:** Reads the 30-byte factory serial number via vendor control transfer `0x25`.
 - **Optical LED Control:** Controls the blue LED via vendor request `0x11`.
 - **High-Speed Synchronous Capture:** Implements vendor request `0x03` on Bulk IN endpoint `0x82` streaming native 1100×800 CMOS sensor frames (880,000 bytes).
-- **Smart Capture™ / Auto-Exposure:** Closed-loop feedback controller adjusting sensor integration time (I²C registers `0x30`, `0x31`) and gain (`0x32`) in real-time, preventing ridge collapse on heavy pressure and boosting contrast on light or dry touches.
+- **Closed-Loop Auto-Exposure:** Closed-loop feedback controller adjusting sensor integration time (I²C registers `0x30`, `0x31`) and gain (`0x32`) in real-time, preventing ridge collapse on heavy pressure and boosting contrast on light or dry touches.
 - **Clean Framing & Platen Feathering:** Eliminates bezel moldura artifacts through edge feathering, preserving the natural field of view and biometric positioning.
 - **Sub-Pixel Bilinear Resampling:** Produces smooth, scanline-free biometric portrait images in standard $300 \times 400$ (500 DPI) and high-definition $600 \times 800$.
 - **Image Export:** Built-in zero-dependency export to binary PGM (`P5`) and grayscale PNG.
@@ -40,7 +40,7 @@ cargo run --example led_probe
 # 3. Read 30-byte hardware serial number:
 cargo run --example serial_probe
 
-# 4. Interactive Smart Capture with Auto-Exposure:
+# 4. Interactive Capture with Auto-Exposure:
 cargo run --example capture_fingerprint
 
 # 5. Interactive exposure and gain calibration sweep:

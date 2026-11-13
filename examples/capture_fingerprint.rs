@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut line = String::new();
     io::stdin().read_line(&mut line)?;
 
-    println!("Executando Auto-Exposure em malha fechada (Smart Capture)...");
+    println!("Executando Auto-Exposure em malha fechada...");
     let (tuned_exp, tuned_gain, tuned_delta) = scanner.auto_tune_exposure()?;
     println!(
         "✓ Auto-Exposure convergiu: Exposição = {tuned_exp}, Ganho = 0x{tuned_gain:02x}, Contraste Delta = {tuned_delta}"
