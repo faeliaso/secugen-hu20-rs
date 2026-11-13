@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## 0.1.1 - 2026-11-13
+
+### Added
+
+- `Installation` section with `cargo add secugen-hu20-rs` in `README.md`.
+
 ## 0.1.0 - 2026-11-13
 
 ### Added
