@@ -20,6 +20,16 @@ Built entirely on `rusb` with clean-room protocol documentation and hardware val
 
 ---
 
+## Installation
+
+Add the published crate to an application with Cargo:
+
+```sh
+cargo add secugen-hu20-rs
+```
+
+---
+
 ## Requirements
 
 - `libusb-1.0` (native on macOS; package `libusb-1.0-0-dev` on Debian/Ubuntu).
