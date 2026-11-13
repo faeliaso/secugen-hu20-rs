@@ -1,5 +1,5 @@
 use crate::error::{ScannerError, UsbOperation};
-use crate::protocol::{is_hu20, HU20_PID, SECUGEN_VID};
+use crate::protocol::{is_hu20, SECUGEN_VID};
 use core::fmt;
 use core::str::FromStr;
 
@@ -106,7 +106,7 @@ pub fn list_devices() -> Result<Vec<DiscoveredDevice>, ScannerError> {
         result.push(DiscoveredDevice {
             id: DeviceId::new(device.bus_number(), device.address()),
             vendor_id: SECUGEN_VID,
-            product_id: HU20_PID,
+            product_id: descriptor.product_id(),
             port_numbers: device.port_numbers().ok(),
             product_name,
             serial_number,

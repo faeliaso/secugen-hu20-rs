@@ -107,9 +107,4 @@ pub enum ScannerError {
     /// A PGM or PNG artifact could not be written.
     #[error("image export failed: {0}")]
     ImageExport(String),
-    /// The public capture API is intentionally gated pending physical validation.
-    #[error(
-        "HU20 capture is unavailable until the USB protocol is validated on physical hardware"
-    )]
-    ProtocolNotValidated,
 }
