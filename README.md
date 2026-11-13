@@ -2,7 +2,7 @@
 
 Pure Rust, userspace USB driver for the SecuGen Hamster Pro 20 (HU20, USB VID `0x1162`, PID `0x2200`), with zero proprietary SDK, C library, or runtime dependencies.
 
-Built entirely on `rusb` through clean-room reverse engineering of the official Linux and Windows binaries.
+Built entirely on `rusb` with clean-room protocol documentation and hardware validation.
 
 ---
 

@@ -31,7 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Try full sensor initialization
-    println!("Testing full CMOS register sequence (SENSOR_REGISTERS + SetFrameWindowPos)...");
+    println!("Testing full CMOS register sequence (SENSOR_REGISTERS + frame window)...");
     match scanner.capture_frame() {
         Ok(frame) => {
             let bytes = frame.as_bytes();

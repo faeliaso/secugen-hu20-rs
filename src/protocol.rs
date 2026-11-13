@@ -58,10 +58,7 @@ pub const PLATEN_ACTIVE_HEIGHT: usize = PLATEN_CROP_Y1 - PLATEN_CROP_Y0;
 pub(crate) const INTERFACE_NUMBER: u8 = 0;
 /// Vendor request used by the SDK to control the optical LED.
 pub(crate) const SET_LED_REQUEST: u8 = 0x11;
-/// Alternate vendor request that begins the image stream in the SDK path.
-///
-/// Recovered from `CVxdInterface::StartSendingImg(true)`: `0x03` is the high-speed
-/// capture start request used by `CSIDO020A::ReadImage`.
+/// Vendor request that begins the high-speed image stream (`0x03`).
 pub(crate) const START_IMAGE_REQUEST: u8 = 0x03;
 /// Vendor request that stops the active image stream.
 pub(crate) const STOP_IMAGE_REQUEST: u8 = 0x02;
@@ -71,7 +68,7 @@ pub(crate) const DUMP_FRAME_REQUEST: u8 = 0x05;
 /// Vendor request to query fake finger / live detection.
 #[allow(dead_code)]
 pub(crate) const CHECK_LIVE_FINGER_REQUEST: u8 = 0x16;
-/// Vendor request used by the SDK during `GetDeviceInfo` to read the device serial.
+/// Vendor request used to read the 30-byte device serial number during handshake.
 pub(crate) const READ_SERIAL_REQUEST: u8 = 0x25;
 /// Length in bytes of the serial number returned by `READ_SERIAL_REQUEST`.
 pub const SERIAL_NUMBER_LENGTH: usize = 30;
@@ -103,7 +100,7 @@ pub(crate) const SENSOR_REG_EXPOSURE_LOW: u16 = 0x31;
 #[allow(dead_code)]
 pub(crate) const SENSOR_REG_GAIN: u16 = 0x32;
 
-/// CMOS register sequence recovered from `CSIDO020A::InitSensorReg`.
+/// Default CMOS register initialization sequence for the CSIDO020A sensor.
 pub(crate) const SENSOR_REGISTERS: &[(u16, u8)] = &[
     (0x03, 0x02),
     (0x04, 0x81),

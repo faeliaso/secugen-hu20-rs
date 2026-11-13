@@ -135,8 +135,7 @@ impl SecuGenDevice {
 
     /// Reads the 30-byte hardware serial number using vendor request `0x25`.
     ///
-    /// Statically recovered from `CVxdInterface::ReadSerialNum` / `GetDeviceInfo`,
-    /// which the vendor SDK always issues before sensor initialization.
+    /// Issued during the initial device handshake before CMOS sensor initialization.
     pub fn read_serial_number(&mut self) -> Result<[u8; SERIAL_NUMBER_LENGTH], ScannerError> {
         let request_type = rusb::request_type(
             rusb::Direction::In,
@@ -161,8 +160,6 @@ impl SecuGenDevice {
     }
 
     /// Flushes/dumps the hardware frame buffer using vendor request `0x05`.
-    ///
-    /// Statically recovered from `CVxdInterface::DumpFrame`.
     pub fn dump_frame(&mut self) -> Result<(), ScannerError> {
         self.vendor_control(DUMP_FRAME_REQUEST, 1, UsbOperation::DumpFrame)
     }
@@ -398,8 +395,7 @@ impl SecuGenDevice {
             operation: UsbOperation::OpenDevice,
             message: error.to_string(),
         })?;
-        // Match `FDU_USBOpenSecugenDevice` in the supplied Linux SDK.  The
-        // explicit configuration/alternate-setting selection matters on hosts
+        // Explicit configuration/alternate-setting selection matters on hosts
         // that leave an interface in a partially configured state, but on macOS
         // re-selecting an already-active configuration can reset or stall EP0.
         if handle.active_configuration().unwrap_or(0) != 1 {
@@ -477,7 +473,7 @@ impl SecuGenDevice {
         for &(register, value) in SENSOR_REGISTERS {
             self.write_sensor_register(register, value)?;
         }
-        // `SetFrameWindowPos(250, 40, 1100, 800, true)` from the SDK.
+        // Configure 1100x800 sensor frame window at (250, 40).
         for (register, value) in [
             (0x41, 0x00),
             (0x42, 0xfa),
@@ -500,8 +496,7 @@ impl SecuGenDevice {
 
     /// Sets the CMOS sensor exposure time.
     ///
-    /// Statically recovered from `CVxdInterface::SetExposure`. For the HU20 (PID `0x2200`),
-    /// this sets sensor registers `0x30` (MSB) and `0x31` (LSB).
+    /// For the HU20 (PID `0x2200`), this sets sensor registers `0x30` (MSB) and `0x31` (LSB).
     pub fn set_exposure(&mut self, exposure: u16) -> Result<(), ScannerError> {
         self.initialize_sensor()?;
         self.exposure = exposure;
@@ -511,8 +506,7 @@ impl SecuGenDevice {
 
     /// Sets the CMOS sensor analog gain value.
     ///
-    /// Statically recovered from `CVxdInterface::SetGainValue`. For the HU20 (PID `0x2200`),
-    /// this sets sensor register `0x32`.
+    /// For the HU20 (PID `0x2200`), this sets sensor register `0x32`.
     pub fn set_gain(&mut self, gain: u8) -> Result<(), ScannerError> {
         self.initialize_sensor()?;
         self.gain = gain;
@@ -520,8 +514,6 @@ impl SecuGenDevice {
     }
 
     /// Reads a CMOS sensor register via the vendor I²C bridge (`0xc0/0x22`).
-    ///
-    /// Statically recovered from `CVxdInterface::GetSensorRegister` / `GetI2C`.
     pub fn read_sensor_register(&mut self, register: u16) -> Result<u8, ScannerError> {
         let request_type = rusb::request_type(
             rusb::Direction::In,
@@ -546,8 +538,7 @@ impl SecuGenDevice {
     }
 
     /// Writes a CMOS sensor register via the vendor I²C bridge (`0x40/0x22`)
-    /// and immediately reads it back to verify equality, matching
-    /// `CVxdInterface::SetSensorRegister`.
+    /// and immediately reads it back to verify equality.
     pub fn write_sensor_register(&mut self, register: u16, value: u8) -> Result<(), ScannerError> {
         let request_type = rusb::request_type(
             rusb::Direction::Out,
@@ -567,7 +558,7 @@ impl SecuGenDevice {
                 operation: UsbOperation::InitializeSensor,
                 message: error.to_string(),
             })?;
-        // Mirror CVxdInterface::SetSensorRegister verification
+        // Verify register write via immediate readback
         let readback = self.read_sensor_register(register)?;
         if readback != value {
             return Err(ScannerError::Usb {
@@ -639,7 +630,7 @@ impl SecuGenDevice {
                 expected: FRAME_BYTES,
             });
         }
-        // Invert polarity per CSIDO020A::DoModify (`notb` instruction)
+        // Invert pixel polarity (bitwise NOT) so ridges are dark and valleys are light
         frame.iter_mut().for_each(|pixel| *pixel = !*pixel);
         Ok(frame)
     }
